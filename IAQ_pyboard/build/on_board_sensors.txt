@@ -1,0 +1,16 @@
+#This file records:
+#
+#  1) the name of sensors on the board 
+#  2) the sensor type (the hexadecimal number assigned by Aretas to each sensor)
+#  3) the channel of the ADS1115 that each sensor is connected to
+#  4) the ppm's of the low test gas the sensor is calibrated with 
+#  5) the voltage reading that results form the application of the low concentration test gas
+#  6) the ppm's of the high test gas the sensor is calibrated with 
+#  7) the voltage reading that results form the application of the high concentration test gas
+#  8) the slope of the sensors voltage output
+#
+#Each line contains all of the above data fields separated by colons
+#
+#
+Mocon VOC:senor type:chan 0:low ppm:low voltage:high ppm:high voltage:slope
+EC4-500-CO:senor type:chan 2:low ppm:low voltage:high ppm:high voltage:slope

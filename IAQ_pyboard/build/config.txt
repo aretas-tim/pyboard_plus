@@ -1,0 +1,4 @@
+ssid : basement949
+password : bluehouse949
+host : www.aretas.ca
+url : /test_logger
