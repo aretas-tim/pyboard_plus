@@ -154,8 +154,8 @@ class Calibrator:
                 elif(check_command(user_commands[3])):
                 
                     print("You entered \"set values\".")) 
-                    print("Type the 4 sensor values you wish to use in the format \"CO low,CO hi,NO2 low,NO2 hi\"."))
-                    print("i.e 11.11,22.22,33.33,44.44 (no spaces, seperated by commas, ending in a semi-colon). "))
+                    print("Type the 2 sensor values you wish to use in the format \"low voltage,high voltage\"."))
+                    print("i.e 1.34,2.85 (no spaces, seperated by a comma). "))
                     #proceed to the state that collects and parses the voltage values of the on board sensors
                     self.change_state("set_values")
                     
@@ -163,8 +163,8 @@ class Calibrator:
                 elif(check_command(user_commands[4])):
                 
                     print("You entered \"set ppms\".")) 
-                    print("Type the 4 ppm values you wish to use in the format \"CO low,CO hi,NO2 low,NO2 hi\"."))
-                    print("i.e 0.0,10.0,0.0,2.0 (no spaces, seperated by commas, ending in a semi-colon). "))
+                    print("Type the 4 ppm values you wish to use in the format \"low ppm,hi ppm\"."))
+                    print("i.e 0.0,10.0 (no spaces, seperated by comma). "))
                     #proceed to the state that collects and parses the ppm values of the on board sensors
                     self.change_state("set_ppms")
                     
@@ -172,10 +172,13 @@ class Calibrator:
                 elif(check_command(user_commands[5])):
                 
                     print("You entered \"verify values\"")
-                    print("The current CO low value is: ") print(sensor_values[0])
-                    print("The current CO hi value is: ") print(sensor_values[1])
-                    print("The current NO2 low value is: ") print(sensor_values[2])
-                    print("The current NO2 hi value is: ") print(sensor_values[3])
+                    print("The current sensor is: \n")
+                    print(self.current_sensor.name+"\n")
+                    print("The low concentration voltage value is: ") 
+                    print(self.current_sensor.low_voltage+"\n")
+                    print("The high concentration voltage value is: ") 
+                    print(self.current_sensor.high_voltage)
+                    
                     #proceed to the state that waits for user input
                     self.change_state("idle")
                     
@@ -183,10 +186,13 @@ class Calibrator:
                 elif(check_command(user_commands[6])):
                 
                     print("You entered \"verify ppms\"")
-                    print("The current CO low ppm is: ") print(gas_ppms[0])
-                    print("The current CO hi ppm is: ") print(gas_ppms[1])
-                    print("The current NO2 low ppm is: ") print(gas_ppms[2])
-                    print("The current NO2 hi ppm is: ") print(gas_ppms[3])
+                    print("The current sensor is: \n")
+                    print(self.current_sensor.name+"\n")
+                    print("The low concentration ppm is: ") 
+                    print(self.current_sensor.low_ppm+"\n")
+                    print("The high concentration ppm is: ") 
+                    print(self.current_sensor.high_ppm)
+                    
                     #proceed to the state that waits for user input
                     self.change_state("idle")
                     
@@ -231,6 +237,7 @@ class Calibrator:
             #  return/enter key.
             #
             elif(self.curr_state =="print_sensor_vals"): 
+                
                 #get the voltage reading from the current sensor via the ADS1115
                 voltage = self.current_sensor.getVoltageReading()
                 #print the value to the screen
@@ -244,6 +251,77 @@ class Calibrator:
                     self.curr_state =="print_sensor_vals"
                 else:
                     self.curr_state =="idle"
+                    
+            #-------------------------------------------------------------------------------------------#
+            #-------------------------------------------------------------------------------------------#
+            # The "set_values" state where a user enters the two voltage readings of the sensor observed
+            # when applying a low concentration ppm gas and a high concentration ppm gas           
+            elif(self.curr_state =='set_values'):
+                
+                #get the user input
+                values = input()
+                #print the input to the screen so the user can see if she/he entered it
+                #correctly
+                print("you entered as low_voltage,high_voltage :")
+                print(input+"\n")
+                print("If this is correct enter \"y\" then press the enter key")
+                print("to enter another set of values enter any other letter then press the enter key")
+                #get the user's response to the above prompt
+                correct = input()
+                #if the user enteres "y" save the values to the sensor's data field and change state to "idle"
+                if(correct == 'y'):
+                    # if input == '1.23,4.56', input.rpartition(',') looks like ('1.23', ',', '4.56') 
+                    #saves first voltage value to the analog sensors low voltage data field
+                    self.current_sensor.low_voltage = float(input.rpartition(',')[0])
+                    #saves second voltage value to the analog sensors high voltage data field
+                    self.current_sensor.high_voltage = float(input.rpartition(',')[2])
+                    #sets the current state to idle
+                    self.curr_state =="idle"
+                    #make values_set flag True
+                    self.values_set=True
+                    
+                else:
+                    #remain in this state
+                    self.curr_state =='set_values'
+                    
+                    
+            #-------------------------------------------------------------------------------------------#
+            #-------------------------------------------------------------------------------------------#
+            # The "set_ppms" state where a user enters the two voltage readings of the sensor observed
+            # when applying a low concentration ppm gas and a high concentration ppm gas           
+            elif(self.curr_state =='set_ppms'):
+                
+                #get the user input
+                values = input()
+                #print the input to the screen so the user can see if she/he entered it
+                #correctly
+                print("you entered as low_ppm,high_ppm :")
+                print(input+"\n")
+                print("If this is correct enter \"y\" then press the enter key")
+                print("to enter another set of ppms enter any other letter then press the enter key")
+                #get the user's response to the above prompt
+                correct = input()
+                #if the user enteres "y" save the ppms to the sensor's data field and change state to "idle"
+                if(correct == 'y'):
+                    # if input == '1.23,4.56', input.rpartition(',') looks like ('1.23', ',', '4.56') 
+                    #saves first voltage value to the analog sensors low voltage data field
+                    self.current_sensor.low_ppm = float(input.rpartition(',')[0])
+                    #saves second voltage value to the analog sensors high voltage data field
+                    self.current_sensor.high_ppm = float(input.rpartition(',')[2])
+                    #sets the current state to idle
+                    self.curr_state =="idle"
+                    #make ppms_set flag True
+                    self.ppms_set=True
+                else:
+                    #remain in this state
+                    self.curr_state =='set_ppms'
+                    
+                    
+                    
+                    
+                
+                
+                
                                       
                 
                  
