@@ -317,6 +317,41 @@ class Calibrator:
                     self.curr_state =='set_ppms'
                     
                     
+            
+            #-------------------------------------------------------------------------------------------#
+            #-------------------------------------------------------------------------------------------#
+            # The 'calc_slope_save' state where the slope of the current analog sensor is
+            # calculated form the voltage readings produced formt he application of a low and high concentration
+            # test gas.
+            # Saving the new sensor data to a text file requires writing the new data to a new text file, deleting the old text file
+            # and renaming the new file to the old one
+                       
+            elif(self.curr_state =='calc_slope_save'):
+            
+                #calculate the slope of the current sensor and save it to the appropriate data field
+                self.current_sensor.slope = (self.current_sensor.high_voltage - self.current_sensor.low_voltage)/(self.current_sensor.high_ppm - self.current_sensor.low_ppm)
+                #calculate the y-intercept of the current sensor and save it to the appropriate data field
+                self.current_sensor.y_intercept =  self.current_sensor.low_ppm - (self.current_sensor.slope*self.current_sensor.low_voltage)
+                #create a string that has all the calibration data for the current sensor of the form "name:senor type:chan 0:low ppm:low voltage:high ppm:high voltage:slope:y_intercept"
+                sensor_data = self.current_sensor.name+":"+self.current_sensor.type+":"+self.current_sensor.adc_channel+":"+self.current_sensor.low_ppm+":"+self.current_sensor.low_voltage+":"+self.current_sensor.high_ppm+":"+self.current_sensor.high_voltage+":"+self.current_sensor.slope+":"+self.current_sensor.y_intercept     
+                #open the file that has the sensor data AND create a new file for the new sensor data
+                #this process is necessary because  micropython doesn't support inline changes to files
+                with open("on_board_sensors.txt") as old_file, open("new_file.txt",'w') as new_file:
+                #read through each line of this file
+                for line in old_file:
+                    # if the line starts with the name of the sensor 
+                    if self.current_sensor.name in line:
+                        #write the new sensor data to the file
+                        new_file.write(sensor_data)
+                    else:
+                        new_file.write(line)    
+                #close the files
+                old_file.close()
+                new_file.close()
+                #delete the old sensor data file
+                os.remove("on_board_sensors.txt")
+                #rename the new file with the new sensor data to "on_board_sensors.txt"
+                os.rename("new_file.txt","on_board_sensors.txt")    
                     
                     
                 

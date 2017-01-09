@@ -4,7 +4,7 @@ from HIH6130 import HIH6130
 from V89 import V89Sensor
 from Xbee_Driver import Xbee
 from ppd42 import PPD42I2C
-from filters import Filters
+from analog_sensor import Analog_Sensor
 
 #POLLING_DELAY = 120000  #the polling interval in miliseconds
 CYCLE_INTERVAL = 2000   #length of time that controls the sensor gas read cycle

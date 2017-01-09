@@ -91,6 +91,8 @@ class Analog_Sensor:
         self.high_voltage = sensor_data_list[6]
         #set the slope of the sensors voltage readings calculated through calibration
         self.slope = sensor_data_list[7]
+        #set the y-intercept of the sensors voltage readings calculated through calibration
+        self.y_intercept = sensor_data_list[8]
          
          
          

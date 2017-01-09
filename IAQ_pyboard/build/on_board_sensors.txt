@@ -12,5 +12,5 @@
 #Each line contains all of the above data fields separated by colons
 #
 #
-Mocon VOC:senor type:chan 0:low ppm:low voltage:high ppm:high voltage:slope
-EC4-500-CO:senor type:chan 2:low ppm:low voltage:high ppm:high voltage:slope
+Mocon VOC:senor type:chan 0:low ppm:low voltage:high ppm:high voltage:slope:y_intercept
+EC4-500-CO:senor type:chan 2:low ppm:low voltage:high ppm:high voltage:slope:y_intercept
