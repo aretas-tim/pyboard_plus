@@ -19,7 +19,6 @@ from pyb import I2C
 # 13) smbusAlertResponse(self, delay=5000)
 # 14) enterPowerDown(self, delay=5000)
 # 15) setConvReadyPin(self,delay=5000)
-# 16) printContinousVoltage(self, chan)
 # 17) printSingleShotVoltage(self, chan)
 
 
@@ -247,14 +246,14 @@ class ADS1115:
         self.comp_pol = pol
             
         
-     def setLatch(self, latch):
+    def setLatch(self, latch):
         #clear latch bits
         self.config &= 0b1111111111111011
         self.config |= self.latch_dict[latch]
         self.latch = latch
             
         
-     def setQue(self, que):
+    def setQue(self, que):
         #clear comparator que and disable bits
         self.config &= 0b1111111111111100
         self.config |= self.que_dict[que]
@@ -555,38 +554,7 @@ class ADS1115:
         data_buf = bytearray([self.__REG_POINTER_LOWTHRESH,(self.lowthresh_reg >> 8) & 0xFF, self.lowthresh_reg & 0xFF])
         self.i2c.send(data_buf,self.address,timeout=delay)
 
-
- 
-    # example function to read continuously from a specified channel and print value to screen 
-    # This function works in single channel or differential acquisition mode.
-    # For single channel, chan should be one of: 'chan 0','chan 1', 'chan 2', 'chan 3'. (make sure you include the single quotes) 
-    # For differential mode, chan should be one of: 'chan 0_1','chan 0_3', 'chan 1_3', 'chan 2_3'. 
-    # (These are the only channel combinations this chip offers )
-
-    def printContinousVoltage(self, chan):
-    
-     
-    
-        # configure object for continuous collection
-        # and activate specified channel 
-        self.setConfig(acqmode='contin',mux=chan)  
-    
-        # write to configuration register and start conversion
-        self.startADCConversion()
-    
-        # read value and print to screen
-        while True:
-        
-            res = self.readConversion()
-            print(res)
-            pyb.delay(1000)
-        
-
-
-
-    
-    
-    
+   
     
     # Pointer Register
     __REG_POINTER_MASK        = 0x03

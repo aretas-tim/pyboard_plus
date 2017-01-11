@@ -1,30 +1,31 @@
 import sys
 import pyb
+from analog_sensor import Analog_Sensor
 
 
-states = ['initial','choose_sensor','input_gas_ppm','print_sensor_vals','enter_sensor_voltage','exit_calibration','check_user_input','idle','set_ppms','set_values','verify_ppms','verify_values','calc_slope_save']
 
-#the array that holds all the commands that the user can type into the monitor to initiate state change
-#any new commands that will be added must be added here and they must end with the appropriate delimiting character
-#as of writing this the delimiting character is "". so all the commands end with a ""
-user_commands= [b"choose sensor",b"exit",b"pause", b"set values",b"set ppms",b"verify values",b"verify ppms",b"calc slope"]
 
-#the parseing function uses the strtok() function which requires a string with all the delimiting characters. 
-#In this case, the parsed values will be seperated by "," and the entered string will be terminated with ""
-parsing_delimiters = [b",",b";"]
+
 
 
 
 class Calibrator:
+    
+    states = ['initial','choose_sensor','input_gas_ppm','print_sensor_vals','enter_sensor_voltage','exit_calibration','check_user_input','idle','set_ppms','set_values','verify_ppms','verify_values','calc_slope_save']
 
-    def __init__(self, input_delimiter, sensor_list)
+    #the array that holds all the commands that the user can type into the monitor to initiate state change
+    #any new commands that will be added must be added here and they must end with the appropriate delimiting character
+    #as of writing this the delimiting character is "". so all the commands end with a ""
+    user_commands= [b"choose sensor",b"exit",b"pause", b"set values",b"set ppms",b"verify values",b"verify ppms",b"calc slope"]
+    
+    def __init__(self, sensor_list):
 
         #A line of text entered by the user
-        self.user_input=""
+        self.user_input=''
         #a variable used to keep track of the previous state
-        self.prev_state = check_user_input
+        self.prev_state = 'initial'
         #the variable used to keep track of the current state in the calibration routine
-        self.curr_state = check_user_input
+        self.curr_state = 'initial'
         #a flag used to ensure certain messages will only be printed once to the screen.
         #this reduces the clutter of the monitor when calibrating
         self.print_once_flag = False
@@ -38,17 +39,17 @@ class Calibrator:
         
         #A list of sensor objects. See analog_sensor.py
         self.sensors=sensor_list
-        #the character used to denote the end of user input
-        self.delimiter = input_delimiter
         #The current sensor selected for calibration. 
         self.current_sensor="none"
         
         
-    def calibrate(self):
         
+        
+    def calibrate(self):
+        print('inside calibration')
         exit_routine = False
         
-        while(!exit_routine):
+        while not exit_routine:
         
             #-------------------------------------------------------------------------------------------#
             #-------------------------------------------------------------------------------------------#
@@ -66,7 +67,11 @@ class Calibrator:
                 
                 if(self.print_once_flag == False):
                     print("\n")
-                    print("To select a sensor enter 'choose' and press the return key\n")
+                    print("To select a sensor enter type the sensors name and press the return key\n")
+                    print('The sensors that are on this board are: ')
+                    #print the name of all the sensors in the list of sensors passed to the calibration object
+                    for s in self.sensors:
+                        print(s.name+'\n')
                     print("To pause enter \"pause\" and press the return key ")
                     print("To set the 4 sensor values type \"set values\" and press the return key")
                     print("To set the 4 ppm values type \"set ppms\" and press the return key")
@@ -90,6 +95,7 @@ class Calibrator:
             #-------------------------------------------------------------------------------------------#
             #the state where the user chooses which sensor to calibrate
             elif(self.curr_state =='choose_sensor'):
+                print("in choose sensor state")
             
                 if(self.print_once_flag == False):
                     print("\n\n")
@@ -114,13 +120,14 @@ class Calibrator:
             #The check_user_input state where user input is compared to predetermined commands and state is
             #changed based on the user input
             elif(self.curr_state =="check_user_input"):
+                print("in check_user_input state")
             
                 #for each sensor in the list of sensors
                 for s in self.sensors:
                     #if the user entered the name of the sensor s
-                    if(check_command(s.name):
+                    if(self.check_command(s.name)):
                     
-                        print("You entered "+s.name+" ." 
+                        print("You entered "+s.name+" .") 
                         print("This sensor is now selected.\n")
                         #change the sensor to the sensor the user entered
                         self.current_sensor = s
@@ -136,40 +143,40 @@ class Calibrator:
                     
                    
                 #if input data matches the "exit" command 
-                if(check_command(user_commands[1])):
+                if(self.check_command(self.user_commands[1])):
                 
-                    print("You typed \"exit\". Exiting calibration mode."))
+                    print("You typed \"exit\". Exiting calibration mode.")
                     #exit the calibration routine altogether
                     change_state("exit_calibration")
                     self.exit_routine = true
                     
                 #if input data matches the "pause" command   
-                elif(check_command(user_commands[2])):
+                elif(self.check_command(self.user_commands[2])):
                 
-                    print("You typed \"pause\". Entering Idle mode."))
+                    print("You typed \"pause\". Entering Idle mode.")
                     #proceed to the idle state that waits for user input
                     self.change_state("idle")
                     
                 #if input data matches the "set values" command      
-                elif(check_command(user_commands[3])):
+                elif(self.check_command(self.user_commands[3])):
                 
-                    print("You entered \"set values\".")) 
-                    print("Type the 2 sensor values you wish to use in the format \"low voltage,high voltage\"."))
-                    print("i.e 1.34,2.85 (no spaces, seperated by a comma). "))
+                    print("You entered \"set values\".") 
+                    print("Type the 2 sensor values you wish to use in the format \"low voltage,high voltage\".")
+                    print("i.e 1.34,2.85 (no spaces, seperated by a comma). ")
                     #proceed to the state that collects and parses the voltage values of the on board sensors
                     self.change_state("set_values")
                     
                 #if input data matches the "set ppms" command      
-                elif(check_command(user_commands[4])):
+                elif(self.check_command(self.user_commands[4])):
                 
-                    print("You entered \"set ppms\".")) 
-                    print("Type the 4 ppm values you wish to use in the format \"low ppm,hi ppm\"."))
-                    print("i.e 0.0,10.0 (no spaces, seperated by comma). "))
+                    print("You entered \"set ppms\".")
+                    print("Type the 4 ppm values you wish to use in the format \"low ppm,hi ppm\".")
+                    print("i.e 0.0,10.0 (no spaces, seperated by comma). ")
                     #proceed to the state that collects and parses the ppm values of the on board sensors
                     self.change_state("set_ppms")
                     
                 #if input data matches the "verify values" command     
-                elif(check_command(user_commands[5])):
+                elif(self.check_command(self.user_commands[5])):
                 
                     print("You entered \"verify values\"")
                     print("The current sensor is: \n")
@@ -183,7 +190,7 @@ class Calibrator:
                     self.change_state("idle")
                     
                 #if input data matches the "verify ppm" command
-                elif(check_command(user_commands[6])):
+                elif(self.check_command(self.user_commands[6])):
                 
                     print("You entered \"verify ppms\"")
                     print("The current sensor is: \n")
@@ -197,7 +204,7 @@ class Calibrator:
                     self.change_state("idle")
                     
                 #if input data matches the "calc slope" command
-                elif(check_command(user_commands[7])):
+                elif(self.check_command(self.user_commands[7])):
                 
                     print("You entered \"calc slope\"")
                     #if the sensor values have been set
@@ -217,17 +224,17 @@ class Calibrator:
                      
                 else:
                     #the command entered by the user was not one of the legally recognizable options
-                    print("Did not recognize command. Enter either: ")
-                    print(user_commands[0])
-                    print(user_commands[1])
-                    print(user_commands[2])
-                    print(user_commands[3])
-                    print(user_commands[4])
-                    print(user_commands[5])
-                    print(user_commands[6])
-                    print(user_commands[7])
+                    print("\nDid not recognize command. Enter either: ")
+                    print(self.user_commands[0])
+                    print(self.user_commands[1])
+                    print(self.user_commands[2])
+                    print(self.user_commands[3])
+                    print(self.user_commands[4])
+                    print(self.user_commands[5])
+                    print(self.user_commands[6])
+                    print(self.user_commands[7])
                     #proceed to the state that waits for user input
-                    self.change_state(idle)
+                    self.change_state('idle')
                     
                     
             #-------------------------------------------------------------------------------------------#
@@ -237,7 +244,7 @@ class Calibrator:
             #  return/enter key.
             #
             elif(self.curr_state =="print_sensor_vals"): 
-                
+                print("in print_sensor_vals state")
                 #get the voltage reading from the current sensor via the ADS1115
                 voltage = self.current_sensor.getVoltageReading()
                 #print the value to the screen
@@ -257,7 +264,7 @@ class Calibrator:
             # The "set_values" state where a user enters the two voltage readings of the sensor observed
             # when applying a low concentration ppm gas and a high concentration ppm gas           
             elif(self.curr_state =='set_values'):
-                
+                print("in set_values state")
                 #get the user input
                 values = input()
                 #print the input to the screen so the user can see if she/he entered it
@@ -290,7 +297,7 @@ class Calibrator:
             # The "set_ppms" state where a user enters the two voltage readings of the sensor observed
             # when applying a low concentration ppm gas and a high concentration ppm gas           
             elif(self.curr_state =='set_ppms'):
-                
+                print("in set_ppms state")
                 #get the user input
                 values = input()
                 #print the input to the screen so the user can see if she/he entered it
@@ -327,7 +334,7 @@ class Calibrator:
             # and renaming the new file to the old one
                        
             elif(self.curr_state =='calc_slope_save'):
-            
+                print("in calc_slope_save state")
                 #calculate the slope of the current sensor and save it to the appropriate data field
                 self.current_sensor.slope = (self.current_sensor.high_voltage - self.current_sensor.low_voltage)/(self.current_sensor.high_ppm - self.current_sensor.low_ppm)
                 #calculate the y-intercept of the current sensor and save it to the appropriate data field
@@ -337,14 +344,14 @@ class Calibrator:
                 #open the file that has the sensor data AND create a new file for the new sensor data
                 #this process is necessary because  micropython doesn't support inline changes to files
                 with open("on_board_sensors.txt") as old_file, open("new_file.txt",'w') as new_file:
-                #read through each line of this file
-                for line in old_file:
-                    # if the line starts with the name of the sensor 
-                    if self.current_sensor.name in line:
-                        #write the new sensor data to the file
-                        new_file.write(sensor_data)
-                    else:
-                        new_file.write(line)    
+                    #read through each line of this file
+                    for line in old_file:
+                        # if the line starts with the name of the sensor 
+                        if self.current_sensor.name in line:
+                            #write the new sensor data to the file
+                            new_file.write(sensor_data)
+                        else:
+                            new_file.write(line)    
                 #close the files
                 old_file.close()
                 new_file.close()

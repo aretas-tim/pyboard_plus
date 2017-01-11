@@ -1,4 +1,4 @@
-from ADS11115_pyboard_plus import ADS1115
+from ADS1115_pyboard_plus import ADS1115
 
 #on the pyboard plus board the CO sensor is connected to the ADS1115 ADC chip
 #on channel 2, and the pyboard is connect to the ADS1115. So in order for the 
@@ -12,6 +12,29 @@ from ADS11115_pyboard_plus import ADS1115
 #The ADS1115 firmware is written such that the analogue channels are 
 # selected by choosing one of 'chan 0','chan 1','chan 2', 'chan 3'  
 
+# main.py -- put your code here!
+# from analog_calibration import Calibrator
+# 
+# 
+# 
+# usb = pyb.USB_VCP()
+# voc_sensor = Analog_Sensor('Mocon VOC',1)
+# co_sensor = Analog_Sensor('EC4-500-CO',2)
+# sensor_list = [voc_sensor,co_sensor]
+# calibration_routine = Calibrator(sensor_list)
+# 
+# while(True):
+#     
+#     print('outside loop')
+#     
+#     #usb.setinterrupt(-1)
+#     if usb.any():
+#         input = usb.readline()
+#         #usb.close()
+#         if b'calibrate' in input:
+#             calibration_routine.calibrate()
+#     else:
+#         pyb.delay(1000)
 
 class Analog_Sensor:
     
@@ -35,7 +58,7 @@ class Analog_Sensor:
     #       on_board_sensors.txt file. Else, the object won't be able to automatically read in all its
     #       calibration data from the above file.
     
-    def __init_(self,sensor_name,i2c=1):
+    def __init__(self,sensor_name,i2c=1):
          
         #save the name of the sensor
         self.name = sensor_name
@@ -58,6 +81,7 @@ class Analog_Sensor:
             for line in f:
                 # the line starts with the name of the sensor 
                 if self.name in line:
+                    
                     #while there is still data to be parsed in the line
                     while ':' in line:
                         #this finds the index of the next colon
@@ -68,12 +92,12 @@ class Analog_Sensor:
                         sensor_data_list.append(data)
                         #increments line to the beginning of the next data field
                         line = line[eq_index + 1:]
-                #the while loop continues until there is only one data field left and 0 :'s left
-                #thus we must save the final data field to the list of data
-                #this final data point also contains a '\n' character, so this is stripped     
-                sensor_data_list.append(line[:-1])
-            else:
-                pass    
+                    #the while loop continues until there is only one data field left and 0 :'s left
+                    #thus we must save the final data field to the list of data
+                    #this final data point also contains a '\n' character, so this is stripped     
+                    sensor_data_list.append(line[:-1])
+                else:
+                    pass    
 
         f.close()
         
