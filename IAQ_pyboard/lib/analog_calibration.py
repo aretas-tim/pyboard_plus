@@ -16,7 +16,8 @@ class Calibrator:
     #the array that holds all the commands that the user can type into the monitor to initiate state change
     #any new commands that will be added must be added here and they must end with the appropriate delimiting character
     #as of writing this the delimiting character is "". so all the commands end with a ""
-    user_commands= [b"choose sensor",b"exit",b"pause", b"set values",b"set ppms",b"verify values",b"verify ppms",b"calc slope"]
+    #user_commands= [b"choose sensor",b"exit",b"pause", b"set values",b"set ppms",b"verify values",b"verify ppms",b"calc slope"]
+    user_commands= ["choose sensor","exit","pause","set values","set ppms","verify values","verify ppms","calc slope"]
     
     def __init__(self, sensor_list):
 
@@ -35,7 +36,7 @@ class Calibrator:
         self.ppms_set=False
         #the flag used to control when the calibration routine will be exited
         #initialized to true because the routine should not be enabled upon start up
-        #self.exit_routine=True
+        self.exit_routine=False
         
         #A list of sensor objects. See analog_sensor.py
         self.sensors=sensor_list
@@ -46,10 +47,31 @@ class Calibrator:
         
         
     def calibrate(self):
-        print('inside calibration')
-        exit_routine = False
-        
-        while not exit_routine:
+
+        #------Below block of code needed to reset all the flags in case the routine 
+        #------is exited and re-entered in the same session
+        #A line of text entered by the user
+        self.user_input=''
+        #a variable used to keep track of the previous state
+        self.prev_state = 'initial'
+        #the variable used to keep track of the current state in the calibration routine
+        self.curr_state = 'initial'
+        #a flag used to ensure certain messages will only be printed once to the screen.
+        #this reduces the clutter of the monitor when calibrating
+        self.print_once_flag = False
+        #the flag used to tell if the user has set the sensor values
+        self.values_set=False
+        #the flag used to tell if the user has set the ppm values
+        self.ppms_set=False
+        #the flag used to control when the calibration routine will be exited
+        #initialized to true because the routine should not be enabled upon start up
+        self.exit_routine=False
+        #The current sensor selected for calibration. 
+        self.current_sensor="none"
+        #--------#
+        #--------#
+                
+        while not self.exit_routine:
         
             #-------------------------------------------------------------------------------------------#
             #-------------------------------------------------------------------------------------------#
@@ -58,6 +80,9 @@ class Calibrator:
                 
                 print("-------Calibration Started-------\n\n")
                 #change to the idle state where
+                
+                
+                
                 self.change_state('idle')
                 
             #-------------------------------------------------------------------------------------------#
@@ -66,6 +91,7 @@ class Calibrator:
             elif(self.curr_state =='idle'):
                 
                 if(self.print_once_flag == False):
+                    print("in idle state")
                     print("\n")
                     print("To select a sensor enter type the sensors name and press the return key\n")
                     print('The sensors that are on this board are: ')
@@ -86,6 +112,7 @@ class Calibrator:
                 
                 #get a line of user input
                 self.getUserInput()
+                
                 #change to the state where the user input is verified
                 self.change_state("check_user_input") 
                 #return the print_once_flag is set back to false so future messages will be printed
@@ -121,9 +148,13 @@ class Calibrator:
             #changed based on the user input
             elif(self.curr_state =="check_user_input"):
                 print("in check_user_input state")
+                print ("input: ")
+                print(self.user_input)
             
                 #for each sensor in the list of sensors
                 for s in self.sensors:
+                    print("sensor 1 name:")
+                    print(s.name)
                     #if the user entered the name of the sensor s
                     if(self.check_command(s.name)):
                     
@@ -147,8 +178,8 @@ class Calibrator:
                 
                     print("You typed \"exit\". Exiting calibration mode.")
                     #exit the calibration routine altogether
-                    change_state("exit_calibration")
-                    self.exit_routine = true
+                    self.change_state("exit_calibration")
+                    
                     
                 #if input data matches the "pause" command   
                 elif(self.check_command(self.user_commands[2])):
@@ -236,6 +267,9 @@ class Calibrator:
                     #proceed to the state that waits for user input
                     self.change_state('idle')
                     
+            elif(self.curr_state =="exit_calibration"):
+                self.exit_routine = True
+            
                     
             #-------------------------------------------------------------------------------------------#
             #-------------------------------------------------------------------------------------------#
@@ -359,9 +393,10 @@ class Calibrator:
                 os.remove("on_board_sensors.txt")
                 #rename the new file with the new sensor data to "on_board_sensors.txt"
                 os.rename("new_file.txt","on_board_sensors.txt")    
-                    
-                    
-                
+        
+        self.curr_state =="initial"            
+        self.exit_routine = False
+        return         
                 
                 
                                       
@@ -372,12 +407,18 @@ class Calibrator:
     # the self.user_input data field is identical to the command string passed to it 
     #The command parameter is of type string           
     def check_command(self,command):
+        # print("The cammand being checked is:")
+#         print(command)
+#         print("user_input is:")
+#         print(self.user_input)
         
         is_command = False
         #if the command is equal to the most recent user input
         if(command==self.user_input):
+            #print("command and user input are:")
             is_command = True
         
+        #print(is_command)
         return is_command        
         
     
@@ -388,7 +429,8 @@ class Calibrator:
     def getUserInput(self):
         
         self.user_input = sys.stdin.readline()
-        
+        #this line strips the new line character on input
+        self.user_input = self.user_input[:-1]
         #self.user_input = input()
         
         
