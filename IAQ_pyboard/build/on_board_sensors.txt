@@ -1,6 +1,6 @@
 #This file records:
 #
-#  1) the name of sensors on the board 
+#  1) the name of the analog sensors on the board that need calibrating
 #  2) the sensor type (the hexadecimal number assigned by Aretas to each sensor)
 #  3) the channel of the ADS1115 that each sensor is connected to
 #  4) the ppm's of the low test gas the sensor is calibrated with 
