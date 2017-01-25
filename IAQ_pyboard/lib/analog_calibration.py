@@ -5,19 +5,22 @@ from analog_sensor import Analog_Sensor
 
 
 
-
+##TO DO:
+# currently if a sensor has been calibrated and its slope and y-intercept saved
+# if a another sensor is selected for calibration, its data is not saved. This is due to the
+# sensor selection code at the top of the check_user_input class
 
 
 
 class Calibrator:
     
-    states = ['initial','choose_sensor','input_gas_ppm','print_sensor_vals','enter_sensor_voltage','exit_calibration','check_user_input','idle','set_ppms','set_values','verify_ppms','verify_values','calc_slope_save']
+    states = ['initial','print_commands','choose_sensor','input_gas_ppm','print_sensor_vals','enter_sensor_voltage','exit_calibration','check_user_input','idle','set_ppms','set_values','verify_ppms','verify_values','calc_slope_save']
 
     #the array that holds all the commands that the user can type into the monitor to initiate state change
     #any new commands that will be added must be added here and they must end with the appropriate delimiting character
     #as of writing this the delimiting character is "". so all the commands end with a ""
     #user_commands= [b"choose sensor",b"exit",b"pause", b"set values",b"set ppms",b"verify values",b"verify ppms",b"calc slope"]
-    user_commands= ["choose sensor","exit","pause","set values","set ppms","verify values","verify ppms","calc slope"]
+    user_commands= ["commands","exit","pause","set values","set ppms","verify values","verify ppms","calc slope"]
     
     def __init__(self, sensor_list):
 
@@ -44,8 +47,50 @@ class Calibrator:
         self.current_sensor="none"
         
         
+    #**************************************************************#
+    #this function is used to change the state of the state machine 
+    #**************************************************************#   
+    def change_state(self,next_state):
         
+        #set the previous state to the current state
+        self.prev_state = self.curr_state
+        #set the current state to the next state
+        self.curr_state = next_state
         
+    #**************************************************************#
+    #This function gets 1 line of user input. 
+    #The function returns when it sees a new line character in the user input
+    #a new line charater will result upon the hitting of the enter key
+    #**************************************************************# 
+    def getUserInput(self):
+        
+        self.user_input = input()
+        #self.user_input = sys.stdin.readline()
+        #this line strips the new line character on input
+        #self.user_input = self.user_input[:-1]
+    
+    
+    #**************************************************************#
+    #This function checks to see if the most recent user input stored in
+    # the self.user_input data field is identical to the command string passed to it 
+    #The command parameter is of type string
+    #**************************************************************#            
+    def check_command(self,command):
+
+        
+        is_command = False
+        #if the command is equal to the most recent user input
+        if(command==self.user_input):
+            #print("command and user input are:")
+            is_command = True
+        
+        #print(is_command)
+        return is_command
+    
+    
+    #**************************************************************#
+    #This function is the state machine that controles the calibration routine
+    #**************************************************************#        
     def calibrate(self):
 
         #------Below block of code needed to reset all the flags in case the routine 
@@ -80,6 +125,43 @@ class Calibrator:
                 
                 print("-------Calibration Started-------")
                 #change to the idle state where
+                print('* The sensors that are on this board are: \n')
+                #print the name of all the sensors in the list of sensors passed to the calibration object
+                for s in self.sensors:
+                    print("-"+s.name)
+                print("\n")
+                print("1) To select a sensor type the sensors name and press the return key")    
+                print("2) To pause enter \"pause\" and press the return key")
+                print("3) To set the sensor values type \"set values\" and press the return key")
+                print("4) To set the ppm values type \"set ppms\" and press the return key")
+                print("5) To print the current ppm values type \"verify ppms\" and press the return key")
+                print("6) To print the current sensor values type \"verify values\" and press the return key")
+                print("7) Calculate the sensor slopes and y-intercepts, and save value to pyboard, type \"calc slope\" and press the return key")
+                print("8) To exit type \"exit\"")
+                print("9) To reprint this list of options enter \"commands\" \n")
+                
+                
+                self.change_state('idle')
+                
+            #-------------------------------------------------------------------------------------------#
+            #-------------------------------------------------------------------------------------------#
+            #The initial state where a start message is printed to the screen
+            elif(self.curr_state == 'print_commands'):
+                
+                print('* The sensors that are on this board are: \n')
+                #print the name of all the sensors in the list of sensors passed to the calibration object
+                for s in self.sensors:
+                    print("-"+s.name)
+                print("\n")
+                print("1) To select a sensor type the sensors name and press the return key")    
+                print("2) To pause enter \"pause\" and press the return key")
+                print("3) To set the sensor values type \"set values\" and press the return key")
+                print("4) To set the ppm values type \"set ppms\" and press the return key")
+                print("5) To print the current ppm values type \"verify ppms\" and press the return key")
+                print("6) To print the current sensor values type \"verify values\" and press the return key")
+                print("7) Calculate the sensor slopes and y-intercepts, and save value to pyboard, type \"calc slope\" and press the return key")
+                print("8) To exit type \"exit\"")
+                print("9) To reprint this list of options enter \"commands\" \n")
                 
                 
                 
@@ -94,19 +176,19 @@ class Calibrator:
                     
                     #print("\n")
                     
-                    print('* The sensors that are on this board are: \n')
-                    #print the name of all the sensors in the list of sensors passed to the calibration object
-                    for s in self.sensors:
-                        print("-"+s.name)
-                    print("\n")
-                    print("1) To select a sensor type the sensors name and press the return key")    
-                    print("2) To pause enter \"pause\" and press the return key")
-                    print("3) To set the sensor values type \"set values\" and press the return key")
-                    print("4) To set the ppm values type \"set ppms\" and press the return key")
-                    print("5) To print the current ppm values type \"verify ppms\" and press the return key")
-                    print("6) To print the current sensor values type \"verify values\" and press the return key")
-                    print("7) Calculate the sensor slopes and y-intercepts, and save value to pyboard, type \"calc slope\" and press the return key")
-                    print("8) To exit type \"exit\"\n")
+                    # print('* The sensors that are on this board are: \n')
+#                     #print the name of all the sensors in the list of sensors passed to the calibration object
+#                     for s in self.sensors:
+#                         print("-"+s.name)
+#                     print("\n")
+#                     print("1) To select a sensor type the sensors name and press the return key")    
+#                     print("2) To pause enter \"pause\" and press the return key")
+#                     print("3) To set the sensor values type \"set values\" and press the return key")
+#                     print("4) To set the ppm values type \"set ppms\" and press the return key")
+#                     print("5) To print the current ppm values type \"verify ppms\" and press the return key")
+#                     print("6) To print the current sensor values type \"verify values\" and press the return key")
+#                     print("7) Calculate the sensor slopes and y-intercepts, and save value to pyboard, type \"calc slope\" and press the return key")
+#                     print("8) To exit type \"exit\"\n")
                     print("Waiting for user input..................")
                     print("-----------------------------------------------------------------")
                     print("-----------------------------------------------------------------")
@@ -121,30 +203,6 @@ class Calibrator:
                 #return the print_once_flag is set back to false so future messages will be printed
                 self.print_once_flag = False
             
-            #-------------------------------------------------------------------------------------------#
-            #-------------------------------------------------------------------------------------------#
-            #the state where the user chooses which sensor to calibrate
-            elif(self.curr_state =='choose_sensor'):
-                
-            
-                if(self.print_once_flag == False):
-                    print("\n\n")
-                    print('The sensors on this board are: ')
-                    for s in self.sensors:
-                        print("--- "+s.name+'\n')
-                        
-                    print("To select a sensor type its name exactly as you see it above and press enter.")
-                    self.print_once_flag = True
-                    
-                #get a line of user input
-                self.getUserInput()
-                #change to the state where the user input is verified
-                self.change_state("check_user_input") 
-                #return the print_once_flag is set back to false so future messages will be printed
-                self.print_once_flag = False
-                
-                
-                            
             #-------------------------------------------------------------------------------------------#
             #-------------------------------------------------------------------------------------------#
             #The check_user_input state where user input is compared to predetermined commands and state is
@@ -181,16 +239,23 @@ class Calibrator:
                 if(self.curr_state == "print_sensor_vals"):
                     pass
                 #a sensor was not selected. Continue to check the user's input    
-                else:   
+                else:
+                    
+                     #if input data matches the "pause" command   
+                    if(self.check_command(self.user_commands[0])):
+                
+                        print("You typed \"commands\". Printing user options.")
+                        #proceed to the idle state that waits for user input
+                        self.change_state("print_commands")
+                           
                     #if input data matches the "exit" command 
-                    if(self.check_command(self.user_commands[1])):
+                    elif(self.check_command(self.user_commands[1])):
                 
                         print("You typed \"exit\". Exiting calibration mode.")
                         #exit the calibration routine altogether
                         self.change_state("exit_calibration")
                     
-                    
-                    #if input data matches the "pause" command   
+                   #if input data matches the "pause" command   
                     elif(self.check_command(self.user_commands[2])):
                 
                         print("You typed \"pause\". Entering Idle mode.")
@@ -273,15 +338,11 @@ class Calibrator:
                             self.change_state("idle")
                     else:
                         #the command entered by the user was not one of the legally recognizable options
-                        print("\nDid not recognize command. Enter either: ")
-                        print(self.user_commands[0])
-                        print(self.user_commands[1])
-                        print(self.user_commands[2])
-                        print(self.user_commands[3])
-                        print(self.user_commands[4])
-                        print(self.user_commands[5])
-                        print(self.user_commands[6])
-                        print(self.user_commands[7])
+                        print("\nDid not recognize command. Enter any of the following commands: ")
+                        for command in self.user_commands:
+                            print(command)
+                            
+                       
                         #proceed to the state that waits for user input
                         self.change_state('idle')
             
@@ -302,9 +363,9 @@ class Calibrator:
             elif(self.curr_state =="print_sensor_vals"): 
                 
                 #get the voltage reading from the current sensor via the ADS1115
-                #voltage = self.current_sensor.getVoltageReading()
+                voltage = self.current_sensor.getVoltageReading()
                 #this dummy value used for testing
-                voltage = 1.24
+                #voltage = 1.24
                 #print the value to the screen
                 print("Voltage reading for "+self.current_sensor.name+" : "+str(voltage))
                 #get the user input
@@ -329,7 +390,7 @@ class Calibrator:
                     print("-----------------------------------------------------------")
                     self.change_state("idle")
                 else:    
-                    print("in set_values state")
+                    
                     #get the user input
                     values = input()
                     #print the input to the screen so the user can see if she/he entered it
@@ -409,6 +470,7 @@ class Calibrator:
                 #create a string that has all the calibration data for the current sensor of the form "name:senor type:chan 0:low ppm:low voltage:high ppm:high voltage:slope:y_intercept"
                 sensor_data = str(self.current_sensor.name)+":"+str(self.current_sensor.type)+":"+str(self.current_sensor.adc_channel)+":"+str(self.current_sensor.low_ppm)+":"+str(self.current_sensor.low_voltage)+":"+str(self.current_sensor.high_ppm)+":"+str(self.current_sensor.high_voltage)+":"+str(self.current_sensor.slope)+":"+str(self.current_sensor.y_intercept)+"\n"     
                 
+                
                 #open the file that has the sensor data in read mode
                 with open("on_board_sensors.txt","r") as file:
                     #reads file and stores each line in a list of lines
@@ -442,6 +504,11 @@ class Calibrator:
                     print("slope: "+str(self.current_sensor.slope))
                     print("y-intercept: "+str(self.current_sensor.y_intercept))
                     
+                    #reset the ppms and values flags
+                    #so another sensor can be selected and calibrated
+                    #without exiting the calibration routine
+                    self.values_set=False
+                    self.ppms_set=False
                     #change state back to idle
                     self.change_state('idle')   
         
@@ -456,48 +523,18 @@ class Calibrator:
                 
                  
                 
-    #This function checks to see if the most recent user input stored in
-    # the self.user_input data field is identical to the command string passed to it 
-    #The command parameter is of type string           
-    def check_command(self,command):
-        # print("The cammand being checked is:")
-#         print(command)
-#         print("user_input is:")
-#         print(self.user_input)
         
-        is_command = False
-        #if the command is equal to the most recent user input
-        if(command==self.user_input):
-            #print("command and user input are:")
-            is_command = True
-        
-        #print(is_command)
-        return is_command        
         
     
     
-    #This function gets 1 line of user input. 
-    #The function returns when it sees a new line character in the user input
-    #a new line charater will result upon the hitting of the enter key
-    def getUserInput(self):
-        
-        self.user_input = input()
-        #self.user_input = sys.stdin.readline()
-        #this line strips the new line character on input
-        #self.user_input = self.user_input[:-1]
+
         
         
         
         
         
         
-    #this function is used to change the state of the state machine    
-    def change_state(self,next_state):
-        
-        #set the previous state to the current state
-        self.prev_state = self.curr_state
-        #set the current state to the next state
-        self.curr_state = next_state
+    
             
             
             
