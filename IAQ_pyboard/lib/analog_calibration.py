@@ -5,23 +5,24 @@ from analog_sensor import Analog_Sensor
 
 
 
-##TO DO:
-# currently if a sensor has been calibrated and its slope and y-intercept saved
-# if a another sensor is selected for calibration, its data is not saved. This is due to the
-# sensor selection code at the top of the check_user_input class
+
 
 
 
 class Calibrator:
     
-    states = ['initial','print_commands','choose_sensor','input_gas_ppm','print_sensor_vals','enter_sensor_voltage','exit_calibration','check_user_input','idle','set_ppms','set_values','verify_ppms','verify_values','calc_slope_save']
+    #The list that holds te names of all the states that the state machine cycles through
+    states = ['initial','print_commands','choose_sensor',\
+              'input_gas_ppm','print_sensor_vals','enter_sensor_voltage',\
+              'exit_calibration','check_user_input','idle','set_ppms',\
+              'set_values','verify_ppms','verify_values','calc_slope_save']
 
     #the array that holds all the commands that the user can type into the monitor to initiate state change
-    #any new commands that will be added must be added here and they must end with the appropriate delimiting character
-    #as of writing this the delimiting character is "". so all the commands end with a ""
-    #user_commands= [b"choose sensor",b"exit",b"pause", b"set values",b"set ppms",b"verify values",b"verify ppms",b"calc slope"]
+    #any new commands that will be added must be added here.
     user_commands= ["commands","exit","pause","set values","set ppms","verify values","verify ppms","calc slope"]
     
+    #initializing a calibration routine object requires passing it a list containing the analog sensor objects
+    #that will be calibrated.
     def __init__(self, sensor_list):
 
         #A line of text entered by the user

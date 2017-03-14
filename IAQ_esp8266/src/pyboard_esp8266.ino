@@ -29,7 +29,7 @@ const int httpPort = 80;
           delay(500);
       
       }
-  
+      Serial.println("____________________");
       //Connect to the Wifi Network///////  
       WiFi.begin(thisBoard.getSSID(), thisBoard.getPassWord());
       
