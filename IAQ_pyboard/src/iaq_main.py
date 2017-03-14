@@ -23,6 +23,9 @@ deltaX = 0        #time between consecutive samples. Needed for calculating deri
 POUT = False      #whether or not to print to console (useful for or'ing when calibrating)
 CALIBRATING = False
 
+#initialize and LED for indication purposes
+led = pyb.LED(2)
+
 ##initialize sensor objects
 
 ppm = 0                             #variable to hold the IAQ sensors CO2 data
@@ -53,7 +56,7 @@ calibrator = Calibrator([voc_sensor,co_sensor])
 
  
 #calling this function gets and saves the xbee mac address in the LowMacAddr data field of the xbee object
-xbee.getLowMacAddr() 
+mac_addr = xbee.getLowMacAddr() 
 
 
 ##byte array that will contain all the sensor data in the form 

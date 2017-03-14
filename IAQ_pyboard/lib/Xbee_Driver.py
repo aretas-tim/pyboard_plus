@@ -58,6 +58,7 @@ class Xbee:
             #exit command mode
             self.xbee_uart.write(atCmdCn)
             pyb.delay(300)
+            return response
             
             
         else:
